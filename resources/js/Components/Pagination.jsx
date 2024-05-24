@@ -4,11 +4,11 @@ import React from "react";
 const Pagination = ({ links }) => {
     return (
         <nav className="text text-center mt-4">
-            {links.map((link) => (
+            {links.map((link, index) => (
                 <Link
                     preserveScroll
                     href={link.url}
-                    key={link.label}
+                    key={index}
                     dangerouslySetInnerHTML={{ __html: link.label }}
                     className={
                         "inline-block py-2 px-3 rounded-lg text-gray-400 text-xs " +
