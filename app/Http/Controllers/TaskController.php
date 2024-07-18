@@ -34,6 +34,8 @@ class TaskController extends Controller
         $tasks = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
         return Inertia::render('Task/Index', [
             'tasks' => TaskResource::collection($tasks),
+            'success' => session('success'),
+            'queryParams' =>  request()->query() ?: null,
         ]);
     }
 

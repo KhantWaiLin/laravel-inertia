@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
@@ -13,15 +15,30 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        $query = User::query();
+        $sortField = request("sort_field", "created_at");
+        $sortDirection = request("sort_direction", "desc");
+        if (request('name')) {
+            $query->where('name', 'like', "%" . request('name') . "%");
+        }
+        if (request('email')) {
+            $query->where('email', 'like', "%" . request('email') . "%");
+        }
+        $users = $query->orderBy($sortField, $sortDirection)->paginate(10)->onEachSide(1);
+        return Inertia::render('User/Index', [
+            'users' => UserResource::collection($users),
+            'queryParams' => request()->query() ?: null,
+            'success' => session('success'),
+        ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        //
+        return Inertia::render('User/Create');
     }
 
     /**
@@ -29,7 +46,14 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        //
+        $data = $request->validated();
+        $data['password'] = bcrypt($data['password']);
+        User::create([
+            "name" => $data['name'],
+            "email" => $data['email'],
+            "password" => $data['password'],
+        ]);
+        return to_route("user.index")->with("success", "User was created.");
     }
 
     /**
